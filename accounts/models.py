@@ -13,7 +13,11 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('Email is required')
         email = self.normalize_email(email)
         user = self.model(email=email)
-        user.set_password(password)
+
+        if password:
+            user.set_password(password)
+        else:
+            raise ValueError("Password is required")
         user.save(using=self.db)
         return user
 
