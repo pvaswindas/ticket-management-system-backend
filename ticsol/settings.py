@@ -46,7 +46,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'assistpoint.urls'
+ROOT_URLCONF = 'ticsol.urls'
 
 TEMPLATES = [
     {
@@ -64,7 +64,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'assistpoint.wsgi.application'
+WSGI_APPLICATION = 'ticsol.wsgi.application'
 
 
 # DATABASE CONFIGURATION
