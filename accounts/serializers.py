@@ -15,7 +15,6 @@ class LoginUserSerializer(serializers.Serializer):
     def validate(self, attrs):
         email = attrs.get('email')
         password = attrs.get('password')
-        role = attrs.get('role')
 
         if not email or not password:
             raise serializers.ValidationError(
@@ -39,11 +38,8 @@ class LoginUserSerializer(serializers.Serializer):
             )
 
             if not authenticated_user:
-                raise serializers.ValidationError("Invalid email or password.")
-
-            if role and authenticated_user.role != role.lower():
                 raise serializers.ValidationError(
-                    f"User does not have {role} permissions."
+                    "Incorrect password. Please try again."
                 )
 
             attrs['user'] = authenticated_user

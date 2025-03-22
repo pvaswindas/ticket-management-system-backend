@@ -80,6 +80,21 @@ DATABASES = {
     }
 }
 
+# SECURITY
+# ------------------------------------------------------------------------------
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
+# CORS CONFIGURATION
+# ------------------------------------------------------------------------------
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
+CORS_ALLOW_CREDENTIALS = True
+
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------

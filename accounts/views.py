@@ -5,7 +5,8 @@ from .serializers import (
 )
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 
 
 class RegisterUserView(APIView):
@@ -36,6 +37,7 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        print(request.data)
         serializer = LoginUserSerializer(
             data=request.data,
             context={'request': request}
@@ -53,12 +55,10 @@ class LoginView(APIView):
             }
 
             return Response(
-                {
-                    'status': 'success',
-                    'data': response_data,
-                },
+                response_data,
                 status=status.HTTP_200_OK
             )
+        print(serializer.errors)
         return Response(
             {
                 'status': 'error',
@@ -105,3 +105,16 @@ class LogoutView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_status(request):
+    user = request.user
+    status = 'suspended' if not user.is_active else 'active'
+    return Response(
+        {
+            'status': status,
+            'role': user.role
+        }
+    )
