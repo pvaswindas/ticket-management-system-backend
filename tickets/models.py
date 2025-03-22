@@ -8,7 +8,7 @@ PRIORITY_CHOICES = [
 ]
 
 STATUS_CHOICES = [
-    ('open,', 'Open'),
+    ('open', 'Open'),
     ('in-progress', 'In-Progress'),
     ('resolved', 'Resolved')
 ]
@@ -27,7 +27,19 @@ class Ticket(models.Model):
         choices=STATUS_CHOICES,
         default='open'
     )
-    user = models.OneToOneField(
+    created_user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
     )
+    assigned_to = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.assigned_to and self.status == 'open':
+            self.status = 'in-progress'
+        super().save(*args, **kwargs)
