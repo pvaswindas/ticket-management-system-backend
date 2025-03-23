@@ -3,6 +3,10 @@ from rest_framework.views import APIView
 from .serializers import (
     LoginUserSerializer, CreateUserSerializer
 )
+from .models import User
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
+from datetime import datetime
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
@@ -116,3 +120,49 @@ def get_user_status(request):
             'role': user.role
         }
     )
+
+
+class UserStatsView(APIView):
+    """
+    API endpoint to provide user statistics for the admin dashboard
+    """
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        total_users = User.objects.count()
+        active_users = User.objects.filter(is_active=True).count()
+        inactive_users = User.objects.filter(is_active=False).count()
+        admin_users = User.objects.filter(role='admin').count()
+        regular_users = User.objects.filter(role='user').count()
+
+        current_year = datetime.now().year
+        user_growth_by_month = [0] * 12
+
+        users_by_month = User.objects.filter(
+            date_joined__year=current_year
+        ).annotate(
+            month=TruncMonth('date_joined')
+        ).values('month').annotate(
+            count=Count('id')
+        ).order_by('month')
+
+        for entry in users_by_month:
+            month_idx = entry['month'].month - 1
+            user_growth_by_month[month_idx] = entry['count']
+
+        recent_active_users = User.objects.filter(
+            last_login__gte=datetime.now().replace(day=1)
+        ).count()
+        user_activity_score = int(
+            (recent_active_users / active_users) * 100
+        ) if active_users > 0 else 0
+
+        return Response({
+            'totalUsers': total_users,
+            'activeUsers': active_users,
+            'inactiveUsers': inactive_users,
+            'adminUsers': admin_users,
+            'regularUsers': regular_users,
+            'userGrowthByMonth': user_growth_by_month,
+            'userActivityScore': user_activity_score
+        })
