@@ -37,7 +37,6 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print(request.data)
         serializer = LoginUserSerializer(
             data=request.data,
             context={'request': request}
@@ -58,7 +57,6 @@ class LoginView(APIView):
                 response_data,
                 status=status.HTTP_200_OK
             )
-        print(serializer.errors)
         return Response(
             {
                 'status': 'error',

@@ -10,7 +10,7 @@ PRIORITY_CHOICES = [
 STATUS_CHOICES = [
     ('open', 'Open'),
     ('in-progress', 'In-Progress'),
-    ('resolved', 'Resolved')
+    ('resolved', 'Resolved'),
 ]
 
 
@@ -38,6 +38,9 @@ class Ticket(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def save(self, *args, **kwargs):
         if self.assigned_to and self.status == 'open':
