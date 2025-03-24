@@ -9,4 +9,11 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('status/', views.get_user_status, name='user-status'),
     path('users/stats/', views.UserStatsView.as_view(), name='user-stats'),
+    path('users/', views.UserListView.as_view(), name='user_list'),
+    path(
+        'users/<int:user_id>/status/',
+        views.UserStatusView.as_view(),
+        name='user_status_update'
+    ),
+
 ]

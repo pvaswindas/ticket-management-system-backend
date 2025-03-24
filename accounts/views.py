@@ -1,9 +1,11 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import (
-    LoginUserSerializer, CreateUserSerializer
+    LoginUserSerializer, CreateUserSerializer,
+    UserStatusSerializer, UserListSerializer
 )
 from .models import User
+from django.utils import timezone
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
 from datetime import datetime
@@ -47,6 +49,9 @@ class LoginView(APIView):
         )
         if serializer.is_valid():
             user = serializer.validated_data['user']
+
+            user.last_login = timezone.now()
+            user.save(update_fields=['last_login'])
 
             refresh = RefreshToken.for_user(user)
 
@@ -166,3 +171,47 @@ class UserStatsView(APIView):
             'userGrowthByMonth': user_growth_by_month,
             'userActivityScore': user_activity_score
         })
+
+
+class UserListView(APIView):
+    """API endpoint for listing all users."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        users = User.objects.filter(is_staff=False).order_by('-date_joined')
+        serializer = UserListSerializer(users, many=True)
+        return Response(serializer.data)
+
+
+class UserStatusView(APIView):
+    """API endpoint for updating user active status."""
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = UserStatusSerializer(
+            user, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            if user.email == request.user.email and not serializer.validated_data.get('is_active', True):
+                return Response(
+                    {"error": "You cannot deactivate your own account"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            serializer.save()
+            return Response(
+                {
+                    "message": "User status updated successfully",
+                    "is_active": serializer.data['is_active']
+                },
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -43,7 +43,6 @@ class TicketStatsView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        # Get basic ticket counts
         total_tickets = Ticket.objects.count()
         open_tickets = Ticket.objects.filter(status='open').count()
         in_progress_tickets = Ticket.objects.filter(
@@ -69,7 +68,7 @@ class TicketStatsView(APIView):
         ).order_by('month')
 
         for entry in tickets_by_month:
-            month_idx = entry['month'].month - 1  # Convert to 0-based index
+            month_idx = entry['month'].month - 1
             ticket_creation_by_month[month_idx] = entry['count']
 
         recent_tickets = Ticket.objects.all().order_by('-created_at')[:5]
@@ -96,4 +95,28 @@ class TicketStatsView(APIView):
                 open_tickets, in_progress_tickets, resolved_tickets
             ],
             'recentTickets': recent_tickets_data
+        })
+
+
+class UserTicketStatsView(APIView):
+    """
+    API endpoint to provide ticket statistics for the user dashboard
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Filter tickets for the current user
+        user_tickets = Ticket.objects.filter(created_user=request.user)
+
+        # Calculate stats
+        total_tickets = user_tickets.count()
+        open_tickets = user_tickets.filter(status='open').count()
+        in_progress_tickets = user_tickets.filter(status='in-progress').count()
+        resolved_tickets = user_tickets.filter(status='resolved').count()
+
+        return Response({
+            'totalTickets': total_tickets,
+            'openTickets': open_tickets,
+            'inProgressTickets': in_progress_tickets,
+            'resolvedTickets': resolved_tickets
         })

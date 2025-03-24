@@ -6,8 +6,13 @@ router = DefaultRouter()
 router.register(r'', views.TicketViewSet, basename='ticket')
 
 urlpatterns = [
-    path('', include(router.urls)),
     path(
-        'tickets/stats/', views.TicketStatsView.as_view(), name='ticket-stats'
+        'stats/', views.TicketStatsView.as_view(), name='ticket-stats'
     ),
+    path(
+        'user-stats/',
+        views.UserTicketStatsView.as_view(),
+        name='user-ticket-stats'
+    ),
+    path('', include(router.urls)),
 ]

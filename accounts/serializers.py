@@ -5,6 +5,23 @@ from .validators import validate_password
 from django.core.validators import validate_email
 
 
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'id', 'email', 'role', 'is_active', 'date_joined', 'last_login'
+        ]
+        read_only_fields = [
+            'id', 'email', 'role', 'date_joined', 'last_login'
+        ]
+
+
+class UserStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['is_active']
+
+
 class LoginUserSerializer(serializers.Serializer):
     """Serializer for validating a user data to login."""
 
