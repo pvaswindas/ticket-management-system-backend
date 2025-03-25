@@ -11,7 +11,6 @@ Django-powered backend for ticket management system.
 
 ### Database
 - PostgreSQL (psycopg 3.2.6)
-- SQLite (development)
 - dj-database-url 2.3.0
 
 ### Authentication
@@ -58,7 +57,7 @@ pip install -r requirements.txt
 ```
 SECRET_KEY=your-secret-key
 DEBUG=True
-DATABASE_URL=sqlite:///db.sqlite3
+DATABASE_URL=postgresql://username:password@host:port/database
 ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 
@@ -99,12 +98,6 @@ Server/
 - `/admin/`: Django Admin
 - `/api/auth/`: User endpoints
 - `/api/tickets/`: Ticket endpoints
-
-## 🧪 Testing
-```bash
-# Run tests
-python manage.py test
-```
 
 ## 🚢 Deployment Considerations
 - Use PostgreSQL in production
