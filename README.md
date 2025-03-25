@@ -120,5 +120,6 @@ python manage.py test
 5. Open Pull Request
 
 ## 📧 Contact
-[Your Name]
-[Your Email]
+Aswin Das P V
+pvaswindas.dev@gmail.com
+https://www.linkedin.com/in/pvaswindas/
