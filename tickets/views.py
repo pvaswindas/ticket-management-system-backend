@@ -99,24 +99,30 @@ class TicketStatsView(APIView):
 
 
 class UserTicketStatsView(APIView):
-    """
-    API endpoint to provide ticket statistics for the user dashboard
-    """
+    """API endpoint to provide ticket statistics for the user dashboard"""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # Filter tickets for the current user
-        user_tickets = Ticket.objects.filter(created_user=request.user)
+        status_counts = Ticket.objects.filter(
+            created_user=request.user
+        ).values('status').annotate(
+            count=Count('id')
+        ).order_by()
 
-        # Calculate stats
-        total_tickets = user_tickets.count()
-        open_tickets = user_tickets.filter(status='open').count()
-        in_progress_tickets = user_tickets.filter(status='in-progress').count()
-        resolved_tickets = user_tickets.filter(status='resolved').count()
+        counts = {
+            'open': 0,
+            'in-progress': 0,
+            'resolved': 0,
+        }
+
+        for item in status_counts:
+            counts[item['status']] = item['count']
+
+        total_tickets = sum(counts.values())
 
         return Response({
             'totalTickets': total_tickets,
-            'openTickets': open_tickets,
-            'inProgressTickets': in_progress_tickets,
-            'resolvedTickets': resolved_tickets
+            'openTickets': counts['open'],
+            'inProgressTickets': counts['in-progress'],
+            'resolvedTickets': counts['resolved']
         })
