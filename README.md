@@ -1,4 +1,4 @@
-# Ticket Management System Backend (`ticsol_backend`)
+# TicSol — Ticket Management System Backend
 
 A RESTful web service API powered by Django and Django REST Framework for managing support tickets, user authentication, role-based access control, and administrative analytics.
 
