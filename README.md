@@ -1,118 +1,87 @@
-# 🎫 Simple Ticket Management System - Backend
+# Ticket Management System Backend (`ticsol_backend`)
 
-## 🚀 Project Overview
-Django-powered backend for ticket management system.
+A RESTful web service API powered by Django and Django REST Framework for managing support tickets, user authentication, role-based access control, and administrative analytics.
 
-## 💻 Tech Stack
-### Core Frameworks
-- Django 5.1.7
-- Django REST Framework 3.15.2
-- Simple JWT 5.5.0
+---
 
-### Database
-- PostgreSQL (psycopg 3.2.6)
-- dj-database-url 2.3.0
+## Tech Stack
 
-### Authentication
-- JWT Authentication
-- djangorestframework_simplejwt 5.5.0
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | Django 5.1.7 |
+| **API Engine** | Django REST Framework (DRF) 3.15.2 |
+| **Authentication** | SimpleJWT 5.5.0 (JWT Access & Refresh Token Blacklisting) |
+| **Database** | PostgreSQL (`psycopg` 3.2.6 & `dj-database-url` 2.3.0) |
+| **Environment** | `environs` 14.1.1 & `python-dotenv` 1.0.1 |
+| **WSGI Server** | Gunicorn 23.0.0 |
 
-### Additional Libraries
-- django-cors-headers 4.7.0
-- django-filter 25.1
-- environs 14.1.1 (Environment management)
-- python-dotenv 1.0.1
+---
 
-### Deployment
-- Gunicorn 23.0.0
+## Quick Start
 
-## 🛠️ Prerequisites
+### 1. Prerequisites
 - Python 3.11+
-- pip
-- Virtual Environment
+- PostgreSQL database instance
 
-## 🚀 Setup
+### 2. Environment Setup
+Clone the repository and set up a virtual environment:
 
-### Virtual Environment
 ```bash
-# Create virtual environment
 python -m venv venv
-
-# Activate
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-source venv/bin/activate
-```
-
-### Dependencies
-```bash
-# Install dependencies
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Environment Configuration
-1. Create `.env` file
-2. Add configuration:
-```
+Create a `.env` file in the root directory:
+
+```env
 SECRET_KEY=your-secret-key
-DEBUG=True
-DATABASE_URL=postgresql://username:password@host:port/database
+DATABASE_EXTERNAL_URL=postgresql://username:password@localhost:5432/ticsol_db
 ALLOWED_HOSTS=localhost,127.0.0.1
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+CSRF_TRUSTED_ORIGINS=http://localhost:5173
 ```
 
-### Database Setup
+### 3. Database Initialization
+Run migrations and create an initial administrator account:
+
 ```bash
-# Create migrations
 python manage.py makemigrations
-
-# Apply migrations
 python manage.py migrate
-
-# Create superuser
 python manage.py createsuperuser
 ```
 
-### Running the Server
-```bash
-# Development
-python manage.py runserver
+### 4. Running the Server
 
-# Production
+#### Development Mode
+```bash
+python manage.py runserver
+```
+
+#### Production Mode
+```bash
 gunicorn ticsol.wsgi:application
 ```
 
-## 📂 Project Structure
-```
-Server/
-├── accounts/
-├── tickets/
-├── ticsol/
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-└── manage.py
-```
+---
 
-## 🌐 API Endpoints
-- `/admin/`: Django Admin
-- `/api/auth/`: User endpoints
-- `/api/tickets/`: Ticket endpoints
+## API Overview
 
-## 🚢 Deployment Considerations
-- Use PostgreSQL in production
-- Set `DEBUG=False`
-- Configure `ALLOWED_HOSTS`
-- Use strong `SECRET_KEY`
-
-## 🤝 Contributing
-1. Fork repository
-2. Create feature branch
-3. Commit changes
-4. Push to branch
-5. Open Pull Request
-
-## 📧 Contact
-**Aswin Das P V**  
-**Email:** pvaswindas.dev@gmail.com  
-**LinkedIn:** [pvaswindas](https://www.linkedin.com/in/pvaswindas/)  
+- **Admin Console**: `/admin/`
+- **Authentication Routes**: `/auth/`
+  - `POST /auth/login/` - User authentication & JWT issuance
+  - `POST /auth/register/` - User registration (Admin only)
+  - `POST /auth/logout/` - Token revocation
+  - `POST /auth/token/refresh/` - Token rotation
+  - `GET /auth/status/` - User status & role query
+  - `GET /auth/users/` - List users (Admin only)
+  - `PATCH /auth/users/<id>/status/` - Update user active status (Admin only)
+  - `GET /auth/users/stats/` - User metrics (Admin only)
+- **Ticket Management Routes**: `/tickets/`
+  - `GET /tickets/` - List tickets (filtered by role/owner)
+  - `POST /tickets/` - Create ticket (Regular users only)
+  - `GET /tickets/<id>/` - Retrieve ticket details
+  - `PUT/PATCH /tickets/<id>/` - Update ticket (Forbidden if resolved)
+  - `DELETE /tickets/<id>/` - Delete ticket
+  - `GET /tickets/stats/` - Ticket statistics (Admin only)
+  - `GET /tickets/user-stats/` - Ticket statistics (User dashboard)
